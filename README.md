@@ -7,12 +7,12 @@ FactoryGirl is a (or hopes to be) a relatively faithful port of [thoughtbot/fact
 
 ### Composer
 
-Add `silvertipsoftware/factorygirl` following to the `require-dev` section of your `composer.json`:
+Add `silvertipsoftware/factorygirl` to the `require-dev` section of your `composer.json`:
 
 ```json
 "require-dev": {
     "silvertipsoftware/factorygirl": "dev-master"
-},
+}
 ```
 
 You can obviously choose any available version(s). Run `composer update` to get it.
@@ -48,6 +48,10 @@ Currently, PHP 5.3+ is supported. PHP 5.4 would make some things nicer, so that 
 ## Documentation
 
 See `FactoryGirl` documentation to get a feel for what it does and is used for. The syntax is hopefully a straightforward port to PHP.
+
+### Factory Definitions
+
+The `app/tests/factories.php` file is used to store the factory definitions, and is automatically loaded on the first build/create on an object.
 
 ### Basic Factory
 
@@ -100,7 +104,7 @@ Then, in a factory, you can use the sequence by:
 ```php
 Factory::define('user', function($f) {
     'username' => 'Joe Public',
-    'email' => $f->next('email),
+    'email' => $f->next('email'),
     'status' => 'active'
 });
 ```
@@ -149,4 +153,5 @@ Factory::define('room', function($f) {
 });
 ```
  
+Attribute values are evaluated in the order they are given in the factory definition, so swapping `account` and `location` above would not have worked.
 
