@@ -1,0 +1,23 @@
+{
+    "name": "silvertipsoftware/factorygirl",
+    "description": "A port of FactoryGirl to Laravel4/Eloquent",
+    "keywords": ["testing", "factorygirl", "laravel"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andre Sonnichsen",
+            "email": "andre@silvertipsoftware.com",
+            "homepage": "http://silvertipsoftware.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/database": "4.*",
+        "illuminate/support": "4.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "SlvertipSoftware\\FactoryGirl": "src/"
+        }
+    }
+}
