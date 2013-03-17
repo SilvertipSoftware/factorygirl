@@ -34,7 +34,7 @@ Add the FactoryGirl ServiceProvider to your Laravel application:
 ```php
 'aliases' => array(
     ...
-    'Factory' => 'SilvertipSoftware\FactoryGirl',
+    'Factory' => 'SilvertipSoftware\FactoryGirl\Facades\FactoryGirl',
     ...
 ),
 ```
