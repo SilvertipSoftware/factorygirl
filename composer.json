@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-0": {
-            "SlvertipSoftware\\FactoryGirl": "src/"
+            "SilvertipSoftware\\FactoryGirl": "src/"
         }
     }
 }
