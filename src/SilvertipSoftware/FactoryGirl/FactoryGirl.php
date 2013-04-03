@@ -62,7 +62,10 @@ class FactoryGirl {
             $attrs = $block($this);
             $attrs = array_merge($attrs,$overrides);
             $this->finalize($f, $attrs);
-            $model = new $clsName($attrs);
+            $model = new $clsName();
+            foreach ( $attrs as $key => $value) {
+                $model->$key = $value;
+            }
         }
         return $model;
     }
