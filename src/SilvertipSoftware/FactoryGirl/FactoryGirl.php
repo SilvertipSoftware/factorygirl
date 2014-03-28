@@ -11,6 +11,7 @@ class Association {
         $this->factory = $factory;
     }
 }
+
 class Sequence {
     public $index = 0;
     public $defn;
@@ -41,44 +42,85 @@ class FactoryGirl {
         require($this->app['path'].$path);
     }
 
-    public function define($key, \Closure $block, $clsName = NULL) {
+    public function define($key, \Closure $block, $options = array()) {
         // TODO: check model exists
-        if ($clsName == NULL)
-            $clsName = ucfirst(strtolower($key));
-        $this->factories[$key] = array($block, $clsName);
+        if ( empty($options) ) {
+            $options = array(
+                'class' => ucfirst(strtolower($key))
+            );
+        } else if ( is_string( $options) ) {
+            $options = array(
+                'class' => $options
+            );
+        }
+        $this->factories[$key] = array($block, $options);
     }
 
-    public function build($f, array $overrides = array()) {
+    public function build($key, array $overrides = array()) {
         if ( $this->factories == NULL)
             $this->loadDefinitions();
 
-        if ( !array_key_exists($f, $this->factories) )
-            throw new \InvalidArgumentException("Factory for ".$f." does not exist");
-
         // TODO: worry about infinite loops...
-        $model = NULL;
-        list($block, $clsName) = $this->factories[$f];
-        if ($block != NULL) {
+        $attrs = $this->getAttributesForFactory( $key );
+        $attrs = array_merge( $attrs, $overrides );
+        $this->finalize($key, $attrs);
+        $model = $this->createModel( $key, $attrs, $this->getOptionsForFactory($key) );
+        return $model;
+    }
+
+    //TODO: next two functions should be collapsed...
+    protected function getOptionsForFactory( $key ) {
+        if ( !array_key_exists($key, $this->factories) )
+            throw new \InvalidArgumentException("Factory for ".$key." does not exist");
+
+        list( $block, $options ) = $this->factories[$key];
+        if ( array_key_exists('parent', $options) ) {
+            $base_opts = $this->getOptionsForFactory( $options['parent'] );
+        } else {
+            $base_opts = array(
+                'class' => ucfirst(strtolower($key))
+            );
+        }
+        return array_merge( $base_opts, $options );
+    }
+
+    protected function getAttributesForFactory( $key ) {
+        if ( !array_key_exists($key, $this->factories) )
+            throw new \InvalidArgumentException("Factory for ".$key." does not exist");
+
+        list( $block, $options ) = $this->factories[$key];
+        $base_attrs = array();
+        if ( array_key_exists('parent', $options) ) {
+            $base_attrs = $this->getAttributesForFactory( $options['parent'] );
+        }
+        $attrs = array();
+        if ( $block != NULL )
             $attrs = $block($this);
-            $attrs = array_merge($attrs,$overrides);
-            $this->finalize($f, $attrs);
-            $model = new $clsName();
-            foreach ( $attrs as $key => $value) {
-                $model->$key = $value;
-            }
+
+        return array_merge( $base_attrs, $attrs );
+    }
+
+    protected function createModel( $key, $attrs, $options ) {
+        if ( !array_key_exists('class', $options) )
+            throw new \InvalidArgumentException('Model class is not specified for factory '.$key);
+
+        $clsName = $options['class'];
+        $model = new $clsName();
+        foreach ( $attrs as $attr => $value) {
+            $model->$attr = $value;
         }
         return $model;
     }
 
-    public function create($f, array $overrides = array()) {
-        $model = $this->build($f, $overrides);
+    public function create($key, array $overrides = array()) {
+        $model = $this->build($key, $overrides);
         if (!$model->save())
-            throw new \InvalidArgumentException("Could not save model built from ".$f."\n".$model->errors);
+            throw new \InvalidArgumentException("Could not save model built from factory ".$key."\n".$model->errors);
         return $model;
     }
 
     // TODO: should do more than belongs-to relations
-    public function finalize($f, &$attrs) {
+    public function finalize($key, &$attrs) {
         $keys = array_keys($attrs);
         $keys_to_be_unset = array();
         while ( count($keys) != 0 ) {
@@ -108,8 +150,15 @@ class FactoryGirl {
         return $model;
     }
 
-    public function associate(array $overrides = array()) {
-        return new Association($overrides);
+    public function associate($key = NULL, array $overrides = array()) {
+        if ( $key == NULL )
+            $overrides = array();
+        else if ( is_array($key) ) {
+            $overrides = $key;
+            $key = NULL;
+        }
+
+        return new Association($overrides, $key);
     }
 
     public function sequence($name, \Closure $defn) {
