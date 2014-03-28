@@ -76,6 +76,7 @@ Factory::define('large_room', function($f) {
 }, array(
     'class' => 'Room'
 ));
+```
 
 ### Building/Creating Objects
 
@@ -83,9 +84,10 @@ With the factory defined above, your test code can do:
 
 ```php
 $room = Factory::build('room');
+$another = Factory::build('large_room');
 ```
 
-to get a new room instance, which is not saved to the database. If you want it persisted, use `create`:
+to get new room instances, which are not saved to the database. If you want them persisted, use `create`:
 
 ```php
 $room = Factory::create('room');
@@ -94,8 +96,8 @@ $room = Factory::create('room');
 In either case, attributes may be overridden by passing an array as a second parameter:
 
 ```php
-$large_room = Factory::create('room', array(
-    'capacity' => 100
+$extra_large_room = Factory::create('large_room', array(
+    'capacity' => 1000
 ));
 ```
 
@@ -107,7 +109,7 @@ que attributes in a standard way.
 ```php
 Factory::sequence('email', function($n) {
     return 'noreply'.$n'.@somedomain.com';
-}
+});
 ```
 
 Then, in a factory, you can use the sequence by:
