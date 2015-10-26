@@ -129,9 +129,9 @@ class FactoryGirl {
             if ($v instanceof Association) {
                 $attrs[$k] = $this->createAssociatedObject($k,$v);
                 \array_push($keys,$k);
-            } else if ($v instanceof \Eloquent) {
+            } else if ($v instanceof \Illuminate\Database\Eloquent\Model) {
                 $keys_to_be_unset[] = $k;
-                $attrs[$k.'_id'] = $v->id;               
+                $attrs[$k.'_id'] = $v->getKey();
             } else if ($v instanceof \Closure) {
                 $attrs[$k] = $v($attrs,$this);
                 \array_push($keys,$k);
