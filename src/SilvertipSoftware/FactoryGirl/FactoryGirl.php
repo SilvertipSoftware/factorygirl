@@ -39,7 +39,7 @@ class FactoryGirl {
     }
 
     public function loadDefinitions($path = "/tests/factories.php") {
-        require($this->app['path'].$path);
+        require($this->app['path.base'].$path);
     }
 
     public function define($key, \Closure $block, $options = array()) {
